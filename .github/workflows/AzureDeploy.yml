@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  deploy-azure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: '👩‍💻 Clonar mi repositorio en la maquina de Ubuntu'
+        uses: actions/checkout@v2
+
+      - name: '📗 Instalar NodeJS'
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.x'
+
+      - name: '🎹 Instalar las dependencias del proyecto'
+        run: |
+          npm install
+          npm run build
+
+      - name: '🔐 Login en Azure'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: '🚀 Deploy en Azure WebApps con las credenciales del proyecto'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'delivery-api-team3'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AZUREWEBAPPPUBLISHPROFILE }}
+          package: .
